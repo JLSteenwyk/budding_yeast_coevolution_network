@@ -1,4 +1,3 @@
-
 ## Budding Yeast Coevolutionary Network
 
 <p align="center">
@@ -28,7 +27,7 @@ After installing dependencies run the shiny app by executing the following comma
 shiny::runGitHub("budding_yeast_coevolution_network", "JLSteenwyk")
 ```
 
-### 3) Input list of taxa
+### 3) Input list of gene identifiers
 To obtain a subnetwork of interest, click the "Browse..." button and select a file that has a single column of genes of interest. Genes of interest can be specified using their <i>Saccharomyces cerevisiae</i>, <i>Candida albicans</i>, or orthologous group identifier from [Shen et al. (2018), Cell](https://jlsteenwyk.com/publication_pdfs/2018_Shen_et_al_Cell.pdf). For example, the file should look like the following if using <i>S. cerevisiae</i> identifiers:
 ```
 YNL262W
