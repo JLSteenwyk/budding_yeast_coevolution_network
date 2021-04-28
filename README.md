@@ -2,7 +2,7 @@
 ## Budding Yeast Coevolutionary Network
 
 <p align="center">
-  <img width="460" height="300" src="https://github.com/JLSteenwyk/budding_yeast_coevolution_network/blob/main/www/community_network.png">
+  <img width="400" height="400" src="https://github.com/JLSteenwyk/budding_yeast_coevolution_network/blob/main/www/community_network.png">
 </p>
 
 Gene coevolution—which refers to gene pairs whose evolutionary rates covary across speciation events—is often observed among functionally related genes. We present a comprehensive gene coevolution network inferred from the examination of nearly three million gene pairs from 332 budding yeast species spanning ~400 million years of eukaryotic evolution. Modules within the network provide insight into cellular and genomic structure and function, such as genetic pleiotropy, genes functioning in distinct cellular compartments, vesicle transport, and DNA replication. 
