@@ -1,0 +1,691 @@
+install.packages("ggtree")
+?p.adjust()
+library(ggplot2)
+library(ggpubfigs)
+ggplot(mtcars, aes(factor(carb), fill=factor(cyl))) + geom_bar() + scale_fill_manual(values = friendly_pal("ito_seven")) + theme_big_simple()
+pdf("Desktop/test.pdf")
+ggplot(mtcars, aes(factor(carb), fill=factor(cyl))) + geom_bar() + scale_fill_manual(values = friendly_pal("ito_seven")) + theme_big_simple()
+dev.off()
+library(ggplot2)
+library(ggpubfigs)
+head(iris)
+ggplot2(iris, aes(Sepal.Length, Petal.Length, fill=Species)) + geom_point() + theme_big_simple()
+ggplot(iris, aes(Sepal.Length, Petal.Length, fill=Species)) + geom_point() + theme_big_simple()
+ggplot(iris, aes(Sepal.Length, Petal.Length, color=Species)) + geom_point() + theme_big_simple()
+ggplot(iris, aes(Sepal.Length, Petal.Length, color=Species)) + geom_point() + theme_big_simple() + scale_fill_manual(values = friendly_pal("bright_seven"))
+ggplot(iris, aes(Sepal.Length, Petal.Length, color=Species)) + geom_point() + theme_big_simple() + scale_color_manual(values = friendly_pal("ito_seven"))
+ggplot(iris, aes(Sepal.Length, Petal.Length, color=Species)) + geom_point(size=10) + theme_big_simple() + scale_color_manual(values = friendly_pal("ito_seven"))
+ggplot(iris, aes(Sepal.Length, Petal.Length, color=Species)) + geom_point(size=5) + theme_big_simple() + scale_color_manual(values = friendly_pal("ito_seven"))
+pdf("Desktop/iris.pdf")
+ggplot(iris, aes(Sepal.Length, Petal.Length, color=Species)) + geom_point() + theme_big_simple() + scale_color_manual(values = friendly_pal("ito_seven"))
+dev.off()
+ggplot(iris, aes(Sepal.Length, Petal.Length, color=Species)) + geom_point(size=5) + theme_big_simple() + scale_color_manual(values = friendly_pal("ito_seven"))
+pdf("Desktop/iris.pdf")
+ggplot(iris, aes(Sepal.Length, Petal.Length, color=Species)) + geom_point(size=5) + theme_big_simple() + scale_color_manual(values = friendly_pal("ito_seven"))
+dev.off()
+install.packages("twitteR", dep = T)#
+install.packages("tidytext", dep = T)#
+install.packages("dplyr", dep = T)#
+install.packages("ggplot2", dep = T)
+library(twitteR)
+library(c(rtweet,dplyr, tidyr, tidytext))
+library(c("rtweet","dplyr", "tidyr", "tidytext"))
+library(rtweet)
+library(dplyr)
+library(tidyr)
+library(tidytext)
+search_tweets("#Canada", n=100, include_rts=FALSE)
+country1<-search_tweets("#Canada", n=100, include_rts=FALSE)
+country1<-search_tweets("#Canada", n=100, include_rts=FALSE, retryonratelimit = TRUE)
+head(country1)
+tweets.Country1 <-country1 %>% select(screen_name, text)
+head(tweets.Country)
+head(tweets.Country1)
+head(tweets.Country1$text)
+tweets.Country1$stripped_text1<-gsub("http\\s+","", tweets.Country1$text)
+tweets.Country1_stem <- tweets.Country1 %>% select(stripped_text1) %>% unnest_tokens(word, stripped_text1)
+head(tweets.Country1_stem)
+cleaned_tweets.Country1 <- tweets.Country1_stem %>% anti_join(stop_words)
+head(cleaned_tweets.Country1)
+cleaned_tweets.Country1 %>% count(word, sort=TRUE) %>% top_n(10) %>% mutate(word=reorder(word, n)) %>% ggplot(aes(x=word,y=n)) + geom_col()+xlab(NULL)+ coord_flip() + theme_classic() + labs (x="Count", y="Unique words")
+library(ggplot2)
+cleaned_tweets.Country1 %>% count(word, sort=TRUE) %>% top_n(10) %>% mutate(word=reorder(word, n)) %>% ggplot(aes(x=word,y=n)) + geom_col()+xlab(NULL)+ coord_flip() + theme_classic() + labs (x="Count", y="Unique words")
+cleaned_tweets.Country1 %>% inner_join(get_sentiments("afinn")) %>% count(word, sentiment, sort=TRUE) %>% ungroup()
+cleaned_tweets.Country1 %>% inner_join(get_sentiments("afinn"))
+cleaned_tweets.Country1 %>% inner_join(get_sentiments("afinn")) %>% count(word, sentiment, sort=TRUE)
+cleaned_tweets.Country1 %>% inner_join(get_sentiments("afinn")) %>% count(word, value, sort=TRUE)
+cleaned_tweets.Country1 %>% inner_join(get_sentiments("afinn")) %>% count(word, value, sort=TRUE) %>% ungroup()
+library(rtweet)#
+library(dplyr)#
+library(tidyr)#
+library(tidytext)#
+library(ggplot2)#
+library(syuzhet)#
+library(ggpubfigs)#
+library(sentimentr)
+## get tweet data and organize into organic, replies, and retweets#
+# get tweets from user#
+steenwyk <- get_timeline("@jlsteenwyk", n= 3200)#
+# remove retweets#
+steenwyk_organic <- steenwyk[steenwyk$is_retweet==FALSE, ] #
+# remove replies#
+steenwyk_organic <- subset(#
+    steenwyk_organic, is.na(steenwyk_organic$reply_to_status_id)#
+) #
+# get retweets and replies#
+steenwyk_retweets <- steenwyk[steenwyk$is_retweet==TRUE,]#
+steenwyk_replies <- subset(steenwyk, !is.na(steenwyk$reply_to_status_id))
+## determine number of organic, replies, and retweets & save to a plot #
+replies_num<-dim(steenwyk_replies)[1]#
+retweets_num<-dim(steenwyk_retweets)[1]#
+organic_num<-dim(steenwyk_organic)[1]
+# create data frame of tweet counts#
+tweets_counts_by_type <- data.frame(#
+  category=c("Organic", "Retweets", "Replies"),#
+  count=c(organic_num, retweets_num, replies_num)#
+)
+# determine descriptive statistics#
+tweets_counts_by_type$fraction = tweets_counts_by_type$count / sum(tweets_counts_by_type$count)#
+tweets_counts_by_type$percentage = tweets_counts_by_type$count / sum(tweets_counts_by_type$count) * 100#
+tweets_counts_by_type$ymax = cumsum(tweets_counts_by_type$fraction)#
+tweets_counts_by_type$ymin = c(0, head(tweets_counts_by_type$ymax, n=-1))#
+#
+# round to two decimal points#
+tweets_counts_by_type[,-1] <- round(tweets_counts_by_type[,-1], 2)#
+#
+# create legend label #
+Type_of_Tweet <- paste(tweets_counts_by_type$category, tweets_counts_by_type$percentage, "%")
+ggplot(tweets_counts_by_type, aes(ymax=ymax, ymin=ymin, xmax=4, xmin=3, fill=Type_of_Tweet)) +#
+  geom_rect() +#
+  coord_polar(theta="y") + #
+  xlim(c(2, 4)) +#
+  theme_void() +#
+  theme(legend.position = "right")  +#
+  scale_fill_manual(values = friendly_pal("ito_seven"))
+## conduct sentiment analysis#
+# remove stop chars#
+steenwyk_organic$text <-  gsub("https\\S*", "", steenwyk_organic$text)#
+steenwyk_organic$text <-  gsub("@\\S*", "", steenwyk_organic$text) #
+steenwyk_organic$text  <-  gsub("amp", "", steenwyk_organic$text) #
+steenwyk_organic$text  <-  gsub("[\r\n]", "", steenwyk_organic$text)#
+steenwyk_organic$text  <-  gsub("[[:punct:]]", "", steenwyk_organic$text)#
+# remove stop words#
+steenwyk_organic_tweets <- steenwyk_organic %>%#
+  select(text) %>%#
+  unnest_tokens(word, text)#
+steenwyk_organic_tweets <- steenwyk_organic_tweets %>%#
+  anti_join(stop_words)
+# Converting tweets to ASCII to trackle strange characters#
+steenwyk_organic_tweets_ascii <- iconv(steenwyk_organic_tweets, from="UTF-8", to="ASCII", sub="")#
+# removing retweets, in case needed #
+steenwyk_organic_tweets_ascii <-gsub("(RT|via)((?:\\b\\w*@\\w+)+)","",steenwyk_organic_tweets_ascii)#
+# removing mentions, in case needed#
+steenwyk_organic_tweets_ascii <-gsub("@\\w+","",steenwyk_organic_tweets_ascii)
+ew_sentiment<-get_nrc_sentiment((steenwyk_organic_tweets_ascii))#
+sentimentscores<-data.frame(colSums(ew_sentiment[,]))#
+names(sentimentscores) <- "Score"#
+sentimentscores <- cbind("sentiment"=rownames(sentimentscores),sentimentscores)#
+rownames(sentimentscores) <- NULL
+head(sentimentscores)
+sentimentscores
+ggplot(sentimentscores, aes(sentiment, Score)) + geom_bar(stat='identity')
+ggplot(sentimentscores, aes(sentiment, Score)) + geom_bar(stat='identity') + theme_big_simple()
+ggplot(sentimentscores, aes(sentiment, Score)) + geom_bar(stat='identity') + theme_big_simple() + scale_fill_manual(values = friendly_pal("ito_seven"))
+ggplot(sentimentscores, aes(sentiment, Score, fill=sentiment)) + geom_bar(stat='identity') + theme_big_simple() + scale_fill_manual(values = friendly_pal("ito_seven"))
+ggplot(sentimentscores, aes(sentiment, Score, fill=sentiment)) + geom_bar(stat='identity') + theme_big_simple() + scale_fill_manual(values = c(friendly_pal("ito_seven"), c(friendly_pal("muted_nine")))
+)
+ggplot(sentimentscores, aes(sentiment, Score, fill=sentiment)) + geom_bar(stat='identity') + theme_big_simple()
+ggplot(sentimentscores, aes(sentiment, Score, fill=sentiment)) + geom_bar(stat='identity') + theme_big_simple() + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+ggplot(sentimentscores, aes(sentiment, Score, fill=sentiment)) + geom_bar(stat='identity') + theme_big_simple() + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) + theme(legend. title = element_blank())
+ggplot(sentimentscores, aes(sentiment, Score, fill=sentiment)) + geom_bar(stat='identity') + theme_big_simple() + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) + theme(legend.title = element_blank())
+ggplot(sentimentscores, aes(sentiment, Score, fill=sentiment)) + geom_bar(stat='identity') + theme_big_simple() + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) + theme(legend. position = "none")
+ggplot(sentimentscores, aes(sentiment, Score, fill=sentiment)) + geom_bar(stat='identity') + theme_big_simple() + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) + theme(legend.position = "none")
+library(rtweet)#
+library(dplyr)#
+library(tidyr)#
+library(tidytext)#
+library(ggplot2)#
+library(syuzhet)#
+library(ggpubfigs)#
+library(sentimentr)#
+#
+## get tweet data and organize into organic, replies, and retweets#
+# get tweets from user#
+steenwyk <- get_timeline("@jlsteenwyk", n= 3200)#
+# remove retweets#
+steenwyk_organic <- steenwyk[steenwyk$is_retweet==FALSE, ] #
+# remove replies#
+steenwyk_organic <- subset(#
+    steenwyk_organic, is.na(steenwyk_organic$reply_to_status_id)#
+) #
+# get retweets and replies#
+steenwyk_retweets <- steenwyk[steenwyk$is_retweet==TRUE,]#
+steenwyk_replies <- subset(steenwyk, !is.na(steenwyk$reply_to_status_id))#
+#
+## determine number of organic, replies, and retweets & save to a plot #
+replies_num<-dim(steenwyk_replies)[1]#
+retweets_num<-dim(steenwyk_retweets)[1]#
+organic_num<-dim(steenwyk_organic)[1]#
+#
+# create data frame of tweet counts#
+tweets_counts_by_type <- data.frame(#
+  category=c("Organic", "Retweets", "Replies"),#
+  count=c(organic_num, retweets_num, replies_num)#
+)#
+#
+# determine descriptive statistics#
+tweets_counts_by_type$fraction = tweets_counts_by_type$count / sum(tweets_counts_by_type$count)#
+tweets_counts_by_type$percentage = tweets_counts_by_type$count / sum(tweets_counts_by_type$count) * 100#
+tweets_counts_by_type$ymax = cumsum(tweets_counts_by_type$fraction)#
+tweets_counts_by_type$ymin = c(0, head(tweets_counts_by_type$ymax, n=-1))#
+#
+# round to two decimal points#
+tweets_counts_by_type[,-1] <- round(tweets_counts_by_type[,-1], 2)#
+#
+# create legend label #
+Type_of_Tweet <- paste(tweets_counts_by_type$category, tweets_counts_by_type$percentage, "%")#
+#
+ggplot(tweets_counts_by_type, aes(ymax=ymax, ymin=ymin, xmax=4, xmin=3, fill=Type_of_Tweet)) +#
+  geom_rect() +#
+  coord_polar(theta="y") + #
+  xlim(c(2, 4)) +#
+  theme_void() +#
+  theme(legend.position = "right")  +#
+  scale_fill_manual(values = friendly_pal("ito_seven"))#
+## conduct sentiment analysis#
+# remove stop chars#
+steenwyk_organic$text <-  gsub("https\\S*", "", steenwyk_organic$text)#
+steenwyk_organic$text <-  gsub("@\\S*", "", steenwyk_organic$text) #
+steenwyk_organic$text  <-  gsub("amp", "", steenwyk_organic$text) #
+steenwyk_organic$text  <-  gsub("[\r\n]", "", steenwyk_organic$text)#
+steenwyk_organic$text  <-  gsub("[[:punct:]]", "", steenwyk_organic$text)#
+# remove stop words#
+steenwyk_organic_tweets <- steenwyk_organic %>%#
+  select(text) %>%#
+  unnest_tokens(word, text)#
+steenwyk_organic_tweets <- steenwyk_organic_tweets %>%#
+  anti_join(stop_words)
+bing_lex <- get_sentiments("bing")#
+#
+fn_sentiment <- steenwyk_organic_tweets %>% left_join(bing_lex)#
+#
+fn_sentiment %>% filter(!is.na(sentiment)) %>% group_by(sentiment) %>% summarise(n=n())
+head(fn_sentiment)
+head(steenwyk_organic_tweets)
+library(rtweet)#
+library(dplyr)#
+library(tidyr)#
+library(tidytext)#
+library(ggplot2)#
+library(syuzhet)#
+library(ggpubfigs)#
+library(sentimentr)#
+#
+## get tweet data and organize into organic, replies, and retweets#
+# get tweets from user#
+steenwyk <- get_timeline("@wendy_wcp", n= 3200)#
+# remove retweets#
+steenwyk_organic <- steenwyk[steenwyk$is_retweet==FALSE, ] #
+# remove replies#
+steenwyk_organic <- subset(#
+    steenwyk_organic, is.na(steenwyk_organic$reply_to_status_id)#
+) #
+# get retweets and replies#
+steenwyk_retweets <- steenwyk[steenwyk$is_retweet==TRUE,]#
+steenwyk_replies <- subset(steenwyk, !is.na(steenwyk$reply_to_status_id))#
+#
+## determine number of organic, replies, and retweets & save to a plot #
+replies_num<-dim(steenwyk_replies)[1]#
+retweets_num<-dim(steenwyk_retweets)[1]#
+organic_num<-dim(steenwyk_organic)[1]#
+#
+# create data frame of tweet counts#
+tweets_counts_by_type <- data.frame(#
+  category=c("Organic", "Retweets", "Replies"),#
+  count=c(organic_num, retweets_num, replies_num)#
+)#
+#
+# determine descriptive statistics#
+tweets_counts_by_type$fraction = tweets_counts_by_type$count / sum(tweets_counts_by_type$count)#
+tweets_counts_by_type$percentage = tweets_counts_by_type$count / sum(tweets_counts_by_type$count) * 100#
+tweets_counts_by_type$ymax = cumsum(tweets_counts_by_type$fraction)#
+tweets_counts_by_type$ymin = c(0, head(tweets_counts_by_type$ymax, n=-1))#
+#
+# round to two decimal points#
+tweets_counts_by_type[,-1] <- round(tweets_counts_by_type[,-1], 2)#
+#
+# create legend label #
+Type_of_Tweet <- paste(tweets_counts_by_type$category, tweets_counts_by_type$percentage, "%")#
+#
+ggplot(tweets_counts_by_type, aes(ymax=ymax, ymin=ymin, xmax=4, xmin=3, fill=Type_of_Tweet)) +#
+  geom_rect() +#
+  coord_polar(theta="y") + #
+  xlim(c(2, 4)) +#
+  theme_void() +#
+  theme(legend.position = "right")  +#
+  scale_fill_manual(values = friendly_pal("ito_seven"))#
+## conduct sentiment analysis#
+# remove stop chars#
+steenwyk_organic$text <-  gsub("https\\S*", "", steenwyk_organic$text)#
+steenwyk_organic$text <-  gsub("@\\S*", "", steenwyk_organic$text) #
+steenwyk_organic$text  <-  gsub("amp", "", steenwyk_organic$text) #
+steenwyk_organic$text  <-  gsub("[\r\n]", "", steenwyk_organic$text)#
+steenwyk_organic$text  <-  gsub("[[:punct:]]", "", steenwyk_organic$text)#
+# remove stop words#
+steenwyk_organic_tweets <- steenwyk_organic %>%#
+  select(text) %>%#
+  unnest_tokens(word, text)#
+steenwyk_organic_tweets <- steenwyk_organic_tweets %>%#
+  anti_join(stop_words)
+bing_lex <- get_sentiments("bing")#
+#
+fn_sentiment <- steenwyk_organic_tweets %>% left_join(bing_lex)#
+#
+fn_sentiment %>% filter(!is.na(sentiment)) %>% group_by(sentiment) %>% summarise(n=n())
+library(rtweet)#
+library(dplyr)#
+library(tidyr)#
+library(tidytext)#
+library(ggplot2)#
+library(syuzhet)#
+library(ggpubfigs)#
+library(sentimentr)#
+#
+## get tweet data and organize into organic, replies, and retweets#
+# get tweets from user#
+steenwyk <- get_timeline("@realdonaldtrump", n= 3200)#
+# remove retweets#
+steenwyk_organic <- steenwyk[steenwyk$is_retweet==FALSE, ] #
+# remove replies#
+steenwyk_organic <- subset(#
+    steenwyk_organic, is.na(steenwyk_organic$reply_to_status_id)#
+) #
+# get retweets and replies#
+steenwyk_retweets <- steenwyk[steenwyk$is_retweet==TRUE,]#
+steenwyk_replies <- subset(steenwyk, !is.na(steenwyk$reply_to_status_id))#
+#
+## determine number of organic, replies, and retweets & save to a plot #
+replies_num<-dim(steenwyk_replies)[1]#
+retweets_num<-dim(steenwyk_retweets)[1]#
+organic_num<-dim(steenwyk_organic)[1]#
+#
+# create data frame of tweet counts#
+tweets_counts_by_type <- data.frame(#
+  category=c("Organic", "Retweets", "Replies"),#
+  count=c(organic_num, retweets_num, replies_num)#
+)#
+#
+# determine descriptive statistics#
+tweets_counts_by_type$fraction = tweets_counts_by_type$count / sum(tweets_counts_by_type$count)#
+tweets_counts_by_type$percentage = tweets_counts_by_type$count / sum(tweets_counts_by_type$count) * 100#
+tweets_counts_by_type$ymax = cumsum(tweets_counts_by_type$fraction)#
+tweets_counts_by_type$ymin = c(0, head(tweets_counts_by_type$ymax, n=-1))#
+#
+# round to two decimal points#
+tweets_counts_by_type[,-1] <- round(tweets_counts_by_type[,-1], 2)#
+#
+# create legend label #
+Type_of_Tweet <- paste(tweets_counts_by_type$category, tweets_counts_by_type$percentage, "%")#
+#
+ggplot(tweets_counts_by_type, aes(ymax=ymax, ymin=ymin, xmax=4, xmin=3, fill=Type_of_Tweet)) +#
+  geom_rect() +#
+  coord_polar(theta="y") + #
+  xlim(c(2, 4)) +#
+  theme_void() +#
+  theme(legend.position = "right")  +#
+  scale_fill_manual(values = friendly_pal("ito_seven"))#
+## conduct sentiment analysis#
+# remove stop chars#
+steenwyk_organic$text <-  gsub("https\\S*", "", steenwyk_organic$text)#
+steenwyk_organic$text <-  gsub("@\\S*", "", steenwyk_organic$text) #
+steenwyk_organic$text  <-  gsub("amp", "", steenwyk_organic$text) #
+steenwyk_organic$text  <-  gsub("[\r\n]", "", steenwyk_organic$text)#
+steenwyk_organic$text  <-  gsub("[[:punct:]]", "", steenwyk_organic$text)#
+# remove stop words#
+steenwyk_organic_tweets <- steenwyk_organic %>%#
+  select(text) %>%#
+  unnest_tokens(word, text)#
+steenwyk_organic_tweets <- steenwyk_organic_tweets %>%#
+  anti_join(stop_words)
+bing_lex <- get_sentiments("bing")#
+#
+fn_sentiment <- steenwyk_organic_tweets %>% left_join(bing_lex)#
+#
+fn_sentiment %>% filter(!is.na(sentiment)) %>% group_by(sentiment) %>% summarise(n=n())
+# execute this command only the first time you use ggpubfigs#
+devtools::install_github("JLSteenwyk/ggpubfigs")#
+# load ggpubfigs#
+library(ggpubfigs)
+ggplot(mtcars, aes(factor(carb), fill=factor(cyl))) + geom_bar() + scale_fill_manual(values = friendly_pal("bright_seven")) + theme_big_grid()
+librar(ggplot2)
+library(ggplot2)
+ggplot(mtcars, aes(factor(carb), fill=factor(cyl))) + geom_bar() + scale_fill_manual(values = friendly_pal("bright_seven")) + theme_big_grid()
+1807/2408
+install.packages("phyper")
+x=117 ; fisher.test(matrix(c(x, 705-x, 438-x, 705-438+x), 2, 2), alternative='less')
+x=117 ; fisher.test(matrix(c(x, 705-x, 438-x, 705-438+x), 2, 2), alternative='greater')
+117/438
+705/2408
+x=117 ; fisher.test(matrix(c(x, 705-x, 438-x, 2408-705-438+x), 2, 2), alternative='less')
+x=117 ; fisher.test(matrix(c(x, 705-x, 438-x, 2408-705-438+x), 2, 2), alternative='greater')
+x=99 ; fisher.test(matrix(c(x, 705-x, 242-x, 2408-705-242+x), 2, 2), alternative='less')
+x=99 ; fisher.test(matrix(c(x, 705-x, 242-x, 2408-705-242+x), 2, 2), alternative='greater')
+x=0 ; fisher.test(matrix(c(x, 705-x, 5-x, 2408-705-5+x), 2, 2), alternative='greater')
+x=0 ; fisher.test(matrix(c(x, 705-x, 5-x, 2408-705-5+x), 2, 2), alternative='less')
+x=186 ; fisher.test(matrix(c(x, 705-x, 462-x, 2408-705-462+x), 2, 2), alternative='less')
+x=186 ; fisher.test(matrix(c(x, 705-x, 462-x, 2408-705-462+x), 2, 2), alternative='greater')
+## Stats of gene essentiality enrichment per community #
+# Community 254#
+# 117 is how many essential genes are in the community#
+# 705 is the total number of essential genes in the network#
+# 438 is the number of OGs in the community#
+x=117 ; fisher.test(matrix(c(x, 705-x, 438-x, 2408-705-438+x), 2, 2), alternative='greater')#
+#
+# Community 331#
+# 99 is how many essential genes are in the community#
+# 705 is the total number of essential genes in the network#
+# 242 is the number of OGs in the community#
+x=99 ; fisher.test(matrix(c(x, 705-x, 242-x, 2408-705-242+x), 2, 2), alternative='greater')#
+#
+# Community 520#
+# 0 is how many essential genes are in the community#
+# 705 is the total number of essential genes in the network#
+# 5 is the number of OGs in the community#
+x=0 ; fisher.test(matrix(c(x, 705-x, 5-x, 2408-705-5+x), 2, 2), alternative='greater')#
+#
+# Community 535#
+# 186 is how many essential genes are in the community#
+# 705 is the total number of essential genes in the network#
+# 462 is the number of OGs in the community#
+x=186 ; fisher.test(matrix(c(x, 705-x, 462-x, 2408-705-462+x), 2, 2), alternative='greater')#
+#
+# Community 560#
+# 35 is how many essential genes are in the community#
+# 705 is the total number of essential genes in the network#
+# 229 is the number of OGs in the community#
+x=35 ; fisher.test(matrix(c(x, 705-x, 229-x, 2408-705-229+x), 2, 2), alternative='greater')#
+#
+# Community 585#
+# 18 is how many essential genes are in the community#
+# 705 is the total number of essential genes in the network#
+# 102 is the number of OGs in the community#
+x=18 ; fisher.test(matrix(c(x, 705-x, 102-x, 2408-705-102+x), 2, 2), alternative='greater')#
+#
+# Community 610#
+# 104 is how many essential genes are in the community#
+# 705 is the total number of essential genes in the network#
+# 313 is the number of OGs in the community#
+x=104 ; fisher.test(matrix(c(x, 705-x, 313-x, 2408-705-313+x), 2, 2), alternative='greater')
+x=1 ; fisher.test(matrix(c(x, 705-x, 2-x, 2408-705-2+x), 2, 2), alternative='greater')
+438+242+5+462+229+102+313
+x=559 ; fisher.test(matrix(c(x, 705-x, 1791-x, 2408-705-1791+x), 2, 2), alternative='greater')
+install.packages("GoSemSim")
+install.packages("GoSemSim", dep=T)
+if (!requireNamespace("BiocManager", quietly = TRUE))#
+    install.packages("BiocManager")#
+#
+BiocManager::install("GOSemSim")
+library(GoSemSim)
+library("GoSemSim")
+browseVignettes("GOSemSim")
+comm_254 <- c("GO:0008380", "GO:0000375", "GO:0000398", "GO:0000377", "GO:0006623", "GO:0072666", "GO:0006898", "GO:0006605", "GO:0007034", "GO:0006397", "GO:0072583", "GO:0072665", "GO:0016192", "GO:0046907", "GO:0072594", "GO:0035542", "GO:0048284", "GO:0032258", "GO:0051649", "GO:0048193", "GO:0006996", "GO:0032889", "GO:0051641", "GO:0005681", "GO:0005684", "GO:0099023", "GO:0097525", "GO:0030532", "GO:0030897", "GO:0071012", "GO:0071006", "GO:0120114", "GO:0031982", "GO:0098796", "GO:0071007", "GO:0097708", "GO:0031410", "GO:0071013", "GO:0030119", "GO:0005768", "GO:0017119", "GO:0030665", "GO:0098588", "GO:0071010", "GO:0071004", "GO:0000974", "GO:0005794", "GO:0033263", "GO:0046540", "GO:0097526", "GO:0030117", "GO:0030674", "GO:0060090", "GO:0030276")#
+comm_331 <- c("GO:0000480", "GO:0000472", "GO:0000462", "GO:0000967", "GO:0000469", "GO:0032543", "GO:0030490", "GO:0034471", "GO:0000470", "GO:0006400", "GO:0042273", "GO:0090501", "GO:0000966", "GO:0000463", "GO:0009451", "GO:0008033", "GO:0090502", "GO:0022613", "GO:0000478", "GO:0000479", "GO:0000447", "GO:0016072", "GO:0034470", "GO:0042254", "GO:0006364", "GO:0034660", "GO:0090304", "GO:0006399", "GO:0090305", "GO:0044085", "GO:0016070", "GO:0006396", "GO:0034641", "GO:0006139", "GO:0006725", "GO:0071704", "GO:0008152", "GO:0046483", "GO:0044238", "GO:0006807", "GO:0043170", "GO:1901360", "GO:0044237", "GO:0000027", "GO:0043043", "GO:0042274", "GO:0000959", "GO:0006412", "GO:0006518", "GO:0043604", "GO:0043603", "GO:0000466", "GO:0000460", "GO:0030688", "GO:0030684", "GO:0032040", "GO:0005730", "GO:0030686", "GO:1990904", "GO:0043228", "GO:0043232", "GO:0030687", "GO:0005634", "GO:0044391", "GO:0005840", "GO:0000315", "GO:0005762", "GO:0034388", "GO:0098798", "GO:0005763", "GO:0000314", "GO:0070545",
+"GO:0005655", "GO:0030677", "GO:0000172", "GO:0030681", "GO:0034511", "GO:0030515", "GO:0140098", "GO:0003676", "GO:0003723", "GO:0097159", "GO:1901363", "GO:0019843", "GO:0140101", "GO:0003735", "GO:0004521", "GO:0003724")#
+comm_417 <- c("GO:0071013", "GO:0000384")#
+comm_520 <- c("GO:0006577", "GO:0009437", "GO:0004092", "GO:0016406", "GO:0016413")#
+comm_535 <- c("GO:0009152", "GO:0006164", "GO:0009260", "GO:0072522", "GO:0046390", "GO:0009064", "GO:0009259", "GO:1901607", "GO:0009150", "GO:1901293", "GO:0072521", "GO:0009117", "GO:0019693", "GO:0043648", "GO:0006163", "GO:0055114", "GO:0016053", "GO:0046394", "GO:0009165", "GO:0055086", "GO:0019752", "GO:0008652", "GO:1901605", "GO:0006520", "GO:0043436", "GO:0009124", "GO:0009161", "GO:0006082", "GO:1901566", "GO:0044271", "GO:0044283", "GO:1901362", "GO:0006753", "GO:0044281", "GO:0006536", "GO:0009058", "GO:0006418", "GO:0009156", "GO:0044238", "GO:0019438", "GO:1901576", "GO:0044249", "GO:1901360", "GO:0044237", "GO:0071704", "GO:0018130", "GO:0008152", "GO:0009123", "GO:1901135", "GO:0006537", "GO:0046395", "GO:0016054", "GO:0006541", "GO:0009084", "GO:0043604", "GO:0046165", "GO:0043038", "GO:0043039", "GO:0043603", "GO:1901564", "GO:0046483", "GO:0006066", "GO:0032787", "GO:0009167", "GO:0009126", "GO:0090407", "GO:0019637", "GO:1902652", "GO:0043650", "GO:0046112", "GO:0009127", "GO:0009168",
+"GO:0006725", "GO:0006457", "GO:1901137", "GO:0034641", "GO:0009066", "GO:0006790", "GO:1901615", "GO:0006099", "GO:0006412", "GO:0009067", "GO:0006807", "GO:1901617", "GO:0006553", "GO:0006091", "GO:0043043", "GO:0034654", "GO:1902653", "GO:0044108", "GO:0097384", "GO:0006696", "GO:0016129", "GO:0044282", "GO:0042440", "GO:0046148", "GO:0009112", "GO:0006458", "GO:0006518", "GO:0008204", "GO:0016128", "GO:0009073", "GO:0044107", "GO:0046034", "GO:0008202", "GO:0009072", "GO:0016125", "GO:0006694", "GO:0016126", "GO:0009063", "GO:0072329", "GO:0009987", "GO:0044272", "GO:1990542", "GO:0006555", "GO:0009086", "GO:0046501", "GO:0006094", "GO:0009065", "GO:0006782", "GO:0019319", "GO:0046033", "GO:0009085", "GO:0006167", "GO:0006122", "GO:0009185", "GO:0042026", "GO:0034645", "GO:0000097", "GO:0110165", "GO:0005832", "GO:0101031", "GO:0005737", "GO:1990204", "GO:0005739", "GO:0005743", "GO:0019866", "GO:0005829", "GO:0010494", "GO:0016874", "GO:0016491", "GO:0005524", "GO:0032559", "GO:1901265", "GO:0000166",
+"GO:0030554", "GO:0097367", "GO:0035639", "GO:1901363", "GO:0032555", "GO:0017076", "GO:0043168", "GO:0036094", "GO:0043167", "GO:0003824", "GO:0032553", "GO:0097159", "GO:0005488", "GO:0004812", "GO:0016875", "GO:0016645", "GO:0051082", "GO:0051540", "GO:0051536", "GO:0003723", "GO:0016614", "GO:0003729", "GO:0016646", "GO:0046872", "GO:0043169", "GO:0051287", "GO:0051539", "GO:0016853", "GO:0003676", "GO:0016829")#
+comm_610 <- c("GO:0019222", "GO:0019219", "GO:0031323", "GO:2000112", "GO:0010556", "GO:0050789", "GO:0080090", "GO:0051171", "GO:0060255", "GO:0006355", "GO:0050794", "GO:1903506", "GO:2001141", "GO:0065007", "GO:0006950", "GO:0031326", "GO:0009889", "GO:0032774", "GO:0050896", "GO:0051252", "GO:0048523", "GO:0006974", "GO:0006357", "GO:0097659", "GO:0006351", "GO:0033554", "GO:0051716", "GO:0010468", "GO:0048519", "GO:1901524", "GO:0006281", "GO:0006259", "GO:0044260", "GO:0000725", "GO:0006468", "GO:0071824", "GO:0051172", "GO:0051321", "GO:1903146", "GO:0031324", "GO:0051726", "GO:0007049", "GO:0006302", "GO:0006366", "GO:0098781", "GO:0006367", "GO:0010821", "GO:0006464", "GO:0036211", "GO:0009894", "GO:0006310", "GO:0009892", "GO:0009893", "GO:0031124", "GO:0051783", "GO:0048518", "GO:0000724", "GO:0022414", "GO:0010605", "GO:0071103", "GO:0045934", "GO:0031938", "GO:0031325", "GO:0048522", "GO:0060968", "GO:0031935", "GO:0007346", "GO:0080134", "GO:0016241", "GO:0000727", "GO:0006270", "GO:0006887",
+"GO:0008104", "GO:0045786", "GO:0010506", "GO:0048193", "GO:0006353", "GO:0000278", "GO:0090575", "GO:0005667", "GO:0032991", "GO:0030126", "GO:0030663", "GO:0005933", "GO:1990234", "GO:0000131", "GO:0000993", "GO:0001098", "GO:0001099", "GO:0043175", "GO:0070063", "GO:0140096", "GO:0019899", "GO:0098772", "GO:0017016", "GO:0005515", "GO:0031267", "GO:0008139", "GO:0140142", "GO:1990837")
+mgoSim(comm_254, comm_331, semData=hsGO, measure="Wang", combine=NULL)
+library(GoSemSim)
+library("GoSemSim")
+library("GOSemSim")
+mgoSim(comm_254, comm_331, semData=hsGO, measure="Wang", combine=NULL)
+library(RColorBrewer)#
+# Define the number of colors you want#
+nb.cols <- 12#
+mycolors <- colorRampPalette(brewer.pal(8, "Dark2"))(nb.cols)
+mycolors
+show_col(mycolors)
+library(viridis)#
+library(scales)
+show_col(mycolors)
+n <- 12#
+palette <- distinctColorPalette(n)#
+pie(rep(1, n), col=palette)
+library(randomcoloR)
+install.packages(randomcoloR)
+install.packages("randomcoloR", dep =T)
+install.packages(randomcoloR)
+install.packages("randomcoloR")
+library("randomcoloR")
+n <- 12#
+palette <- distinctColorPalette(n)#
+pie(rep(1, n), col=palette)
+wheel("steelblue", num = 12)
+library(colortools)
+wheel("steelblue", num = 12)
+wheel("steelblue", num = 9)
+install.packages("karyoploteR", dep=T)
+if (!requireNamespace("BiocManager", quietly = TRUE))#
+    install.packages("BiocManager")#
+  BiocManager::install("karyoploteR")
+library(karyoploteR)#
+start.regs <- toGRanges(data.frame("chr1", 20e6, 30e6))#
+end.regs <- toGRanges(data.frame("chr3", 50e6, 55e6))
+kp <- plotKaryotype(plot.type=4)
+kpPlotLinks(kp, data=start.regs, data2=end.regs)
+starts <- sort(createRandomRegions(nregions = 25, length.sd = 8e6))#
+ends <- sort(createRandomRegions(nregions = 25, length.sd = 8e6))
+kpPlotRegions(kp, starts, r0=0, r1=0.5, col="#ff8d92")#
+kpPlotRegions(kp, ends, r0=0, r1=0.5, col="#8d9aff")#
+kpPlotLinks(kp, data=starts, data2=ends, col="#fac7ffaa", r0=0.5)
+start.regs.small <- toGRanges(data.frame("chr14",10e6, 10e6))#
+end.regs.small <- toGRanges(data.frame("chr11", 40e6, 40e6))
+kpPlotLinks(kp, data=start.regs, data2=end.regs, col="#FFF68F", y=0.5)#
+kpPlotLinks(kp, data=start.regs.small, data2=end.regs.small, col="black")
+kpPlotLinks(kp, data=start.regs, data2=end.regs, col="#FFF68F")#
+kpPlotLinks(kp, data=start.regs.small, data2=end.regs.small, col="black")
+library(igraph)
+sample_k_regular(20, 4)
+rando_graph<-sample_k_regular(20, 4)
+plot(rando_graph)
+rando_graph<-sample_k_regular(20, 2)
+plot(rando_graph)
+l2 <- layout_with_mds(net)#
+plot(net2, rescale=T, vertex.label=NA, vertex.frame.color=NA,#
+        layout = l2, vertex.size = 5,#
+        vertex.color = adjustcolor(V(net2)$color, alpha.f = .5),#
+        edge.color = adjustcolor("darkgrey", alpha.f = .75))
+l2 <- layout_with_mds(rando_graph)#
+plot(rando_graph, rescale=T, vertex.label=NA, vertex.frame.color=NA,#
+        layout = l2, vertex.size = 5,#
+        vertex.color = adjustcolor(V(net2)$color, alpha.f = .5),#
+        edge.color = adjustcolor("darkgrey", alpha.f = .75))
+l2 <- layout_with_mds(rando_graph)#
+plot(rando_graph, rescale=T, vertex.label=NA, vertex.frame.color=NA,#
+        layout = l2, vertex.size = 5)
+rando_graph<-erdos.renyi.game(1000, 1/1000)
+l2 <- layout_with_mds(rando_graph)#
+plot(rando_graph, rescale=T, vertex.label=NA, vertex.frame.color=NA,#
+        layout = l2, vertex.size = 5)
+rando_graph<-erdos.renyi.game(1204, 4/1000)
+l2 <- layout_with_mds(rando_graph)#
+plot(rando_graph, rescale=T, vertex.label=NA, vertex.frame.color=NA,#
+        layout = l2, vertex.size = 5)
+l2 <- layout_with_mds(rando_graph)#
+plot(rando_graph, rescale=T, vertex.label=NA, vertex.frame.color=NA,#
+        layout = l2, vertex.size = 5, vertex.color=adjustcolor("steelblue", alpha.f = .5))
+rando_graph<-erdos.renyi.game(1204, 2/1000)
+l2 <- layout_with_mds(rando_graph)#
+plot(rando_graph, rescale=T, vertex.label=NA, vertex.frame.color=NA,#
+        layout = l2, vertex.size = 5, vertex.color=adjustcolor("steelblue", alpha.f = .5))
+l2 <- layout_with_mds(rando_graph)#
+plot(rando_graph, rescale=T, vertex.label=NA, vertex.frame.color=NA,#
+        layout = l2, vertex.size = 5, vertex.color=adjustcolor("steelblue", alpha.f = .5), edge.color = adjustcolor("darkgrey", alpha.f = .75))
+l2 <- layout_with_mds(rando_graph)#
+plot(rando_graph, rescale=T, vertex.label=NA, vertex.frame.color=NA,#
+        layout = l2, vertex.size = 5, vertex.color=adjustcolor("darkgrey", alpha.f = .5), edge.color = adjustcolor("darkgrey", alpha.f = .75))
+l2 <- layout_with_mds(rando_graph)#
+plot(rando_graph, rescale=T, vertex.label=NA, vertex.frame.color=NA,#
+        layout = l2, vertex.size = 5, vertex.color=adjustcolor("black", alpha.f = .5), edge.color = adjustcolor("darkgrey", alpha.f = .75))
+l2 <- layout_with_mds(rando_graph)#
+plot(rando_graph, rescale=T, vertex.label=NA, vertex.frame.color=NA,#
+        layout = l2, vertex.size = 5, vertex.color=adjustcolor("goldenrod", alpha.f = .5), edge.color = adjustcolor("darkgrey", alpha.f = .75))
+svg("Desktop/fake_net.svg")
+l2 <- layout_with_mds(rando_graph)#
+plot(rando_graph, rescale=T, vertex.label=NA, vertex.frame.color=NA,#
+        layout = l2, vertex.size = 5, vertex.color=adjustcolor("goldenrod", alpha.f = .5), edge.color = adjustcolor("darkgrey", alpha.f = .75))
+dev.off()
+svg("Desktop/fake_net.svg", width=12, height=6)
+l2 <- layout_with_mds(rando_graph)#
+plot(rando_graph, rescale=T, vertex.label=NA, vertex.frame.color=NA,#
+        layout = l2, vertex.size = 5, vertex.color=adjustcolor("goldenrod", alpha.f = .5), edge.color = adjustcolor("darkgrey", alpha.f = .75))
+dev.off()
+library(igraph)
+net <- erdos.renyi.game(1000, 1/1000)
+l2 <- layout_with_mds(net)
+plot(net, rescale=T, vertex.label=NA, vertex.frame.color=NA,#
+        layout = l2, vertex.size = 5,#
+        vertex.color = adjustcolor("grey80", alpha.f = .5),#
+        edge.color = adjustcolor("darkgrey", alpha.f = .75))
+net <- erdos.renyi.game(500, 5/1000)
+l2 <- layout_with_mds(net)
+plot(net, rescale=T, vertex.label=NA, vertex.frame.color=NA,#
+        layout = l2, vertex.size = 5,#
+        vertex.color = adjustcolor("grey80", alpha.f = .5),#
+        edge.color = adjustcolor("darkgrey", alpha.f = .75))
+plot(net, rescale=T, vertex.label=NA, vertex.frame.color=NA,#
+        layout = l2, vertex.size = 5,#
+        vertex.color = adjustcolor("grey20", alpha.f = .5),#
+        edge.color = adjustcolor("darkgrey", alpha.f = .75))
+net <- erdos.renyi.game(250, 5/1000)
+l2 <- layout_with_mds(net)
+plot(net, rescale=T, vertex.label=NA, vertex.frame.color=NA,#
+        layout = l2, vertex.size = 5,#
+        vertex.color = adjustcolor("grey20", alpha.f = .5),#
+        edge.color = adjustcolor("darkgrey", alpha.f = .75))
+net <- erdos.renyi.game(250, 10/1000)
+l2 <- layout_with_mds(net)
+plot(net, rescale=T, vertex.label=NA, vertex.frame.color=NA,#
+        layout = l2, vertex.size = 5,#
+        vertex.color = adjustcolor("grey20", alpha.f = .5),#
+        edge.color = adjustcolor("darkgrey", alpha.f = .75))
+svg("Desktop/net.svg")
+plot(net, rescale=T, vertex.label=NA, vertex.frame.color=NA,#
+        layout = l2, vertex.size = 5,#
+        vertex.color = adjustcolor("grey20", alpha.f = .5),#
+        edge.color = adjustcolor("darkgrey", alpha.f = .75))
+dev.off()
+net <- erdos.renyi.game(100, 10/1000)
+svg("Desktop/net.svg")
+dev.off()
+l2 <- layout_with_mds(net)
+plot(net, rescale=T, vertex.label=NA, vertex.frame.color=NA,#
+        layout = l2, vertex.size = 5,#
+        vertex.color = adjustcolor("grey20", alpha.f = .5),#
+        edge.color = adjustcolor("darkgrey", alpha.f = .75))
+plot(net, rescale=T, vertex.label=NA, vertex.frame.color=NA,#
+        layout = layout_nicely, vertex.size = 5,#
+        vertex.color = adjustcolor("grey20", alpha.f = .5),#
+        edge.color = adjustcolor("darkgrey", alpha.f = .75))
+plot(net, rescale=T, vertex.label=NA, vertex.frame.color=NA,#
+        layout = layout_nicely, vertex.size = 25,#
+        vertex.color = adjustcolor("grey20", alpha.f = .5),#
+        edge.color = adjustcolor("darkgrey", alpha.f = .75))
+plot(net, rescale=T, vertex.label=NA, vertex.frame.color=NA,#
+        layout = layout_nicely, vertex.size = 15,#
+        vertex.color = adjustcolor("grey20", alpha.f = .5),#
+        edge.color = adjustcolor("darkgrey", alpha.f = .75))
+plot(net, rescale=T, vertex.label=NA, vertex.frame.color=NA,#
+        layout = layout_nicely, vertex.size = 10,#
+        vertex.color = adjustcolor("grey20", alpha.f = .5),#
+        edge.color = adjustcolor("darkgrey", alpha.f = .75))
+plot(net, rescale=T, vertex.label=NA, vertex.frame.color=NA,#
+        layout = layout_nicely, vertex.size = 7.5,#
+        vertex.color = adjustcolor("grey20", alpha.f = .5),#
+        edge.color = adjustcolor("darkgrey", alpha.f = .75))
+plot(net, rescale=T, vertex.label=NA, vertex.frame.color=NA,#
+        layout = layout_nicely, vertex.size = 7.5,#
+        vertex.color = adjustcolor("grey20"),#
+        edge.color = adjustcolor("darkgrey"))
+cfg<-cluster_fast_greedy(as.undirected(net), weights=E(net)$weight)
+V(net)$community <- cfg$membership
+unique(cfg$membership)
+length(unique(cfg$membership))
+net <- erdos.renyi.game(100, 20/1000)
+cfg<-cluster_fast_greedy(as.undirected(net), weights=E(net)$weight)
+unique(cfg$membership)
+net <- erdos.renyi.game(100, 5/100)
+cfg<-cluster_fast_greedy(as.undirected(net), weights=E(net)$weight)
+unique(cfg$membership)
+plot(net, rescale=T, vertex.label=NA, vertex.frame.color=NA,#
+        layout = layout_nicely, vertex.size = 7.5,#
+        vertex.color = adjustcolor("grey20"),#
+        edge.color = adjustcolor("darkgrey"))
+library("colortools")
+wheel("steelblue", 9)
+colrs <- adjustcolor( c("#4682B4", "#5346B4", "#9D46B4", "#B44682", "#B45346", "#B49D46", "#82B446", "#46B453", "#46B49D"))
+plot(net, rescale=T, vertex.label=NA, vertex.frame.color=NA,#
+        layout = layout_nicely, vertex.size = 7.5,#
+        vertex.color = colrs[V(net)$community],#
+        edge.color = adjustcolor("darkgrey"))
+plot(net, rescale=T, vertex.label=NA, vertex.frame.color=NA,#
+        layout = layout_nicely, vertex.size = 7.5,#
+        vertex.color = adjustcolor(colrs),#
+        edge.color = adjustcolor("darkgrey"))
+plot(net, rescale=T, vertex.label=NA, vertex.frame.color=NA,#
+        layout = layout_nicely, vertex.size = 7.5,#
+        vertex.color = adjustcolor("grey20"),#
+        edge.color = adjustcolor("darkgrey"))
+plot(net, rescale=T, vertex.label=NA, vertex.frame.color=NA,#
+        layout = layout_nicely, vertex.size = 7.5,#
+        vertex.color = adjustcolor("#A6CEE3"),#
+        edge.color = adjustcolor("darkgrey"))
+plot(net, rescale=T, vertex.label=NA, vertex.frame.color=NA,#
+        layout = layout_nicely, vertex.size = 7.5,#
+        vertex.color = adjustcolor("#1F78B4"),#
+        edge.color = adjustcolor("darkgrey"))
+plot(net, rescale=T, vertex.label=NA, vertex.frame.color=NA,#
+        layout = layout_nicely, vertex.size = 7.5,#
+        vertex.color = adjustcolor("#1F78B4", alpha=0.75),#
+        edge.color = adjustcolor("darkgrey"))
+plot(net, rescale=T, vertex.label=NA, vertex.frame.color=NA,#
+        layout = layout_nicely, vertex.size = 7.5,#
+        vertex.color = adjustcolor("#1F78B4", alpha=0.75),#
+        edge.color = adjustcolor("darkgrey", alpha=0.5))
+plot(net, rescale=T, vertex.label=NA, vertex.frame.color=NA,#
+        layout = layout_nicely, vertex.size = 7.5,#
+        vertex.color = adjustcolor("#1F78B4", alpha=0.75),#
+        edge.color = adjustcolor("darkgrey"))
+plot(net, rescale=T, vertex.label=NA, vertex.frame.color=NA,#
+        layout = layout_nicely, vertex.size = 7.5,#
+        vertex.color = adjustcolor("#1F78B4"),#
+        edge.color = adjustcolor("darkgrey"))
+svg("Desktop/net.svg")
+plot(net, rescale=T, vertex.label=NA, vertex.frame.color=NA,#
+        layout = layout_nicely, vertex.size = 7.5,#
+        vertex.color = adjustcolor("#1F78B4"),#
+        edge.color = adjustcolor("darkgrey"))
+dev.off()
+library(colortools)
+wheel("darknavy", 2)
+wheel(darknavy, 2)
+wheel(navy, 2)
+wheel('navy', 2)
+wheel('0056FF', 2)
+wheel('#0056FF', 2)
+wheel('#0048D5', 2)
+wheel('#16A085', 2)
+wheel('#8E44AD', 2)
+wheel('#F39C12', 2)
+wheel('#D68910', 2)
+wheel('#B9770E', 2)
+wheel('#B9770E', 28)
+setwd(""~/Desktop/GITHUB/budding_yeast_coevolution_network")
+setwd("~/Desktop/GITHUB/budding_yeast_coevolution_network")
+library(shiny)
+runApp(.)
+runApp(".")

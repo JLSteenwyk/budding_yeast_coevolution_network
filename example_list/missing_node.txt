@@ -1,0 +1,3 @@
+YLR304C
+YNL172W
+missing_node_id
