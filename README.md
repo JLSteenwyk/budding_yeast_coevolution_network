@@ -8,6 +8,8 @@ Gene coevolution—which refers to gene pairs whose evolutionary rates covary ac
 
 To facilitate others being able to use information encoded in the budding yeast coevolutionary network, we built a shiny web application that allows researchers to obtain subnetworks of interest using lists of genes of interest.
 
+If you use this application, please cite Steenwyk JL, <i>et al.</i> A gene coevolution network provides insight into eukaryotic cellular and genomic structure and function. 2021. [bioRxiv](https://www.biorxiv.org/content/10.1101/2021.07.09.451830v1).<br />
+
 ## Quick Start
 
 ### 1) Installing dependencies
@@ -24,7 +26,7 @@ This application has been tested using<br />
 ### 2) Opening up the shiny app
 After installing dependencies run the shiny app by executing the following command in R
 ```R
-shiny::runGitHub("budding_yeast_coevolution_network", "JLSteenwyk")
+shiny::runGitHub("budding_yeast_coevolution_network", "JLSteenwyk", ref="main")
 ```
 
 ### 3) Input list of gene identifiers
@@ -72,5 +74,5 @@ To download the pdf of the network and information provided below the network us
 
 ## Citation
 If you found the <i>Budding Yeast Coevolutionary Network</i> useful in your research, please cite<br />
-Steenwyk JL, <i>et al.</i> 2021. ARTICLE NAME. JOURNAL. [Link](https://bmcresnotes.biomedcentral.com/articles/10.1186/s13104-019-4577-5)<br />
+Steenwyk JL, <i>et al.</i> A gene coevolution network provides insight into eukaryotic cellular and genomic structure and function. 2021. [bioRxiv](https://www.biorxiv.org/content/10.1101/2021.07.09.451830v1).<br />
 
